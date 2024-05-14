@@ -135,20 +135,40 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters["min_z"] = vehicle_info["min_height_offset"]
     cropbox_parameters["max_z"] = vehicle_info["max_height_offset"]
 
+    mirror_info = load_composable_node_param("vehicle_mirror_param_file")
+    right = mirror_info["right"]
+
+    cropbox_parameters["min_x2"] = right["min_longitudinal_offset"]
+    cropbox_parameters["max_x2"] = right["max_longitudinal_offset"]
+    cropbox_parameters["min_y2"] = right["min_lateral_offset"]
+    cropbox_parameters["max_y2"] = right["max_lateral_offset"]
+    cropbox_parameters["min_z2"] = right["min_height_offset"]
+    cropbox_parameters["max_z2"] = right["max_height_offset"]
+    cropbox_parameters["negative2"] = True
+
+    left = mirror_info["left"]
+    cropbox_parameters["min_x3"] = left["min_longitudinal_offset"]
+    cropbox_parameters["max_x3"] = left["max_longitudinal_offset"]
+    cropbox_parameters["min_y3"] = left["min_lateral_offset"]
+    cropbox_parameters["max_y3"] = left["max_lateral_offset"]
+    cropbox_parameters["min_z3"] = left["min_height_offset"]
+    cropbox_parameters["max_z3"] = left["max_height_offset"]
+    cropbox_parameters["negative3"] = True
+
     self_crop_component = ComposableNode(
         package="pointcloud_preprocessor",
-        plugin="pointcloud_preprocessor::CropBoxFilterComponent",
+        plugin="pointcloud_preprocessor::CropBoxFilter1Component",
         name="crop_box_filter_self",
         remappings=[
             ("input", "pointcloud_raw_ex"),
-            ("output", "self_cropped/pointcloud_ex"),
+            #("output", "self_cropped/pointcloud_ex"),
+            #("output", "right_mirror_cropped/pointcloud_ex"),
+            ("output", "mirror_cropped/pointcloud_ex"),
         ],
         parameters=[cropbox_parameters],
         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
     )
 
-    mirror_info = load_composable_node_param("vehicle_mirror_param_file")
-    right = mirror_info["right"]
     cropbox_parameters.update(
         min_x=right["min_longitudinal_offset"],
         max_x=right["max_longitudinal_offset"],
@@ -160,7 +180,8 @@ def launch_setup(context, *args, **kwargs):
 
     right_mirror_crop_component = ComposableNode(
         package="pointcloud_preprocessor",
-        plugin="pointcloud_preprocessor::CropBoxFilterComponent",
+        #plugin="pointcloud_preprocessor::CropBoxFilterComponent",
+        plugin="pointcloud_preprocessor::Dummy",
         name="crop_box_filter_mirror_right",
         remappings=[
             ("input", "self_cropped/pointcloud_ex"),
@@ -170,7 +191,6 @@ def launch_setup(context, *args, **kwargs):
         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
     )
 
-    left = mirror_info["left"]
     cropbox_parameters.update(
         min_x=left["min_longitudinal_offset"],
         max_x=left["max_longitudinal_offset"],
@@ -182,7 +202,8 @@ def launch_setup(context, *args, **kwargs):
 
     left_mirror_crop_component = ComposableNode(
         package="pointcloud_preprocessor",
-        plugin="pointcloud_preprocessor::CropBoxFilterComponent",
+        #plugin="pointcloud_preprocessor::CropBoxFilterComponent",
+        plugin="pointcloud_preprocessor::Dummy",
         name="crop_box_filter_mirror_left",
         remappings=[
             ("input", "right_mirror_cropped/pointcloud_ex"),
@@ -271,6 +292,10 @@ def launch_setup(context, *args, **kwargs):
             left_mirror_crop_component,
             undistort_component,
         ],
+        additional_env={
+        #    "ST_DISABLE_HOOK": "1",
+        #    "LD_PRELOAD": /home/takashiosawa/work/tools/hook/libhook.so:/opt/ros/humble/lib/x86_64-linux-gnu/libddsc.so.0.10.3:/opt/ros/humble/lib/librclcpp.so:/opt/ros/humble/lib/librmw_cyclonedds_cpp.so",
+        },
     )
 
     driver_loader = LoadComposableNodes(
