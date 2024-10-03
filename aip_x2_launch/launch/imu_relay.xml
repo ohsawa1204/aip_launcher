@@ -1,0 +1,8 @@
+<launch>
+  <group>
+    <node pkg="pointcloud_preprocessor" exec="imu_relay_node" name="imu_relay_node" output="screen">
+      <remap from="~/input/imu" to="/sensing/imu/imu_data"/>
+      <remap from="~/output/batch_imu" to="/sensing/imu/batch_imu_data"/>
+    </node>
+  </group>
+</launch>

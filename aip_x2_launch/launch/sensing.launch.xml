@@ -20,6 +20,8 @@
     <include file="$(find-pkg-share aip_x2_launch)/launch/imu.launch.xml">
       <arg name="launch_driver" value="$(var launch_driver)" />
     </include>
+    <include file="$(find-pkg-share aip_x2_launch)/launch/imu_relay.xml">
+    </include>
 
     <!-- GNSS Driver -->
     <include file="$(find-pkg-share aip_x2_launch)/launch/gnss.launch.xml">
