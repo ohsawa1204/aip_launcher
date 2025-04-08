@@ -211,7 +211,8 @@ def launch_setup(context, *args, **kwargs):
         plugin="autoware::pointcloud_preprocessor::BlockageDiagComponent",
         name="blockage_return_diag",
         remappings=[
-            ("input", "pointcloud_raw_ex"),
+            ("input", "pointcloud_before_sync"),
+            ("effective_input", "pointcloud_raw_ex"),
             ("output", "blockage_diag/pointcloud"),
         ],
         parameters=[
